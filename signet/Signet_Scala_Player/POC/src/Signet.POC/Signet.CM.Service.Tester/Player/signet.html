@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>[Signet demo]</title>
+<!--
+<style>
+
+</style>
+
+<link rel="stylesheet" href="css/index.css" type="text/css" media="screen" charset="utf-8">
+<link rel="stylesheet" href="css/ovp.css" type="text/css" media="screen" charset="utf-8">
+
+<script type="text/javascript" charset="utf-8" src="js/ovp_jquery.js"></script> -->
+<script type="text/javascript" src="js/jquery.min.js"></script>
+
+<script type="text/javascript">
+var title = "";
+var appWidth = 0;
+var appHeight = 0;
+var xmlArr = [];
+var t;
+var interval = 500;
+var selectedVideoArr = [];
+var selectedImageArr = []
+var isPlaying = false;
+var selectedNum = 0;
+var imageDuration = 0;
+var selectedVideo = 0;
+var currentVideoDiv = "";
+var fit = true;
+
+$(document).ready(function(){
+	if(getQueryVariable("data") != null && getQueryVariable("data") != undefined && getQueryVariable("data") != "")
+		{
+
+			xmlParse(getQueryVariable("data"));
+			
+		}
+		else
+		{
+			xmlParse("test.xml");
+		}
+		if(getQueryVariable("scaleFit") != null && getQueryVariable("scaleFit") != undefined && getQueryVariable("scaleFit") != "")
+		{
+		
+ 			fit = getQueryVariable("scaleFit");
+			if(fit == "true")
+			{
+				fit = false;
+			}
+			else
+			{
+				fit = true;
+			}
+			
+			
+		}
+		function getQueryVariable(variable)
+		 {
+			var query = window.location.search.substring(1);
+			var vars = query.split("&");
+			for (var i = 0; i < vars.length; i++)
+			 {
+				var pair = vars[i].split("=");
+				if (pair[0] == variable) 
+				{
+					return pair[1];
+				}
+   			}
+    		return null;
+		}
+
+
+});
+function xmlParse(data)
+{
+		$.get(data,{},function(xml){
+		
+		$('frames',xml).each(function(i){
+		
+		title = $('channel',xml).attr("name");
+		appWidth = Number($('channel',xml).children().eq(0).attr("screenWidth"));
+		appHeight = Number($('channel',xml).children().eq(0).attr("screenHeight"));
+				
+		 var childLen = $('frames',xml).children().length
+		
+			for(var k=0;k<childLen;k++)
+			{
+			
+			//frame --> $('frames',xml).children().eq(k)
+			 //timeslot --> $('frames',xml).children().eq(k).children().eq(0).children().eq(0)
+			  //playlist --> $('frames',xml).children().eq(k).children().eq(0).children().eq(0).children().eq(0)
+			   //medias -->  $('frames',xml).children().eq(k).children().eq(0).children().eq(0).children().eq(0).children().children()
+			  var frame = $('frames',xml).children().eq(k);
+			  var timeslot = $('frames',xml).children().eq(k).children().eq(0).children().eq(0);
+			  var playlist = $('frames',xml).children().eq(k).children().eq(0).children().eq(0).children().eq(0);
+			  var medias = $('frames',xml).children().eq(k).children().eq(0).children().eq(0).children().eq(0).children().children();
+			  
+			  var frameObj = {id:frame.attr("id"), name:frame.attr("name"), x:frame.attr("x"), y:frame.attr("y"), width:frame.attr("width"), height:frame.attr("height"), color:frame.attr("color")};
+			  var timeslotObj = {id:timeslot.attr("id"), name:timeslot.attr("name"), start:timeslot.attr("start"), end:timeslot.attr("end")};
+			  var playlistObj = {id:playlist.attr("id"), name:playlist.attr("name")};
+			  var mediaArr = [];
+			 /// Test alert 
+			//alert(frameObj.id+":"+frameObj.name+":"+frameObj.x+":"+frameObj.y+":"+frameObj.width+":"+frameObj.height+":"+frameObj.color)
+			//alert(timeslotObj.id+":"+timeslotObj.name+":"+timeslotObj.start+":"+timeslotObj.end)
+			//alert(playlistObj.id+":"+playlistObj.name)
+			
+			//alert($('frames',xml).children().eq(k).children().eq(0).children().eq(0).children().eq(0).children().children().eq(0).attr("name"))
+				for(var m=0;m<medias.length;m++)
+				{
+				// get the media
+					//alert(medias.eq(m).attr("start"));
+					mediaArr[m] = {id:medias.eq(m).attr("id"),playOrder:medias.eq(m).attr("PlayOrder"), name:medias.eq(m).attr("name"),duration:medias.eq(m).attr("duration"), type:medias.eq(m).attr("type"), path:medias.eq(m).attr("path"), width:medias.eq(m).attr("width"), height:medias.eq(m).attr("height"),start:medias.eq(m).attr("start"),end:medias.eq(m).attr("end")};
+				}
+				
+				if(timeslotObj.name != undefined)//prevent uncomplete slot
+				{
+					xmlArr.push({frameObj:frameObj,timeslotObj:timeslotObj, playlistObj:playlistObj,mediaArr:mediaArr})
+				}
+			}// end for k
+			xmlArr.reverse()
+			renderContent();
+			this.t = window.setInterval(updateProgress,interval);
+		});
+	
+	});
+}
+// render the content
+function renderContent()
+{
+	//alert(xmlArr.length)
+	$("#main").css({"width":appWidth,"height":appHeight})
+	for(var i=0;i<xmlArr.length;i++)
+	{
+		//alert(xmlArr[i].timeslotObj.name)
+		if(xmlArr[i].timeslotObj.name != undefined)
+		{
+		
+			if(xmlArr[i].mediaArr[0].type == "Video" || xmlArr[i].mediaArr[0].type == "Image")
+			{
+			
+				var str = "";
+				str += "<div id='"+xmlArr[i].frameObj.name+"' style='width:"+xmlArr[i].frameObj.width+"px;height:"+xmlArr[i].frameObj.height+"px;position:absolute;top:"+xmlArr[i].frameObj.y+"px;left:"+xmlArr[i].frameObj.x+"px;border:0px solid #000;'><div style='width:100%;height:100%' align='center' id='media-container"+xmlArr[i].playlistObj.id+"'></div></div>";
+				createDiv("main",str)
+				//background:"+xmlArr[i].frameObj.color+";
+			}
+		//alert(str)
+		}
+	}
+	
+	startMedia()
+}
+
+
+function setVideo(parent,src,w,h)
+{
+	var str	= ""
+	str += "<video id='vPlayer' style='-webkit-transform:scaleX(1);-webkit-transform:scaleY(1)' width='100%' height='100%' autoplay='autoplay' ><source src='"+src+"' type='video/mp4' />Your browser does not support the video tag.</video>"
+	$("#"+parent).html(str)
+	//alert($('#vPlayer').control)
+	
+	$('#vPlayer').bind("ended",videoEndHandler)
+	
+}
+function setImage(parent,src,w,h)
+{
+	var str	= ""
+	str += "<img src='"+src+"' id='imgHolder' width='"+w+"' height='"+h+"' />"
+	$("#"+parent).html(str)
+	
+}
+//
+function videoEndHandler(e)
+{
+	//for(var i in e.target)
+	//{
+	//	msg(i+":"+e.target[i]+"\r")
+	//}
+	//nextVideo();
+}
+///////////
+function nextVideo()
+{
+	for(var l=0;l<selectedVideoArr.length;l++)
+	{
+		if(selectedVideoArr[l].totalVideo > (selectedVideoArr[l].videoIndex+1))
+		{
+			$('#'+selectedVideoArr[l].div).html('');
+			selectedVideo = selectedVideoArr[l].videoIndex = selectedVideoArr[l].videoIndex+1;
+			setVideo(selectedVideoArr[l].div,selectedVideoArr[l].mediaArr[selectedVideoArr[l].videoIndex].path,selectedVideoArr[l].w,selectedVideoArr[l].h)
+		}
+		else
+		{
+			$('#'+selectedVideoArr[l].div).html('');
+			selectedVideo = selectedVideoArr[l].videoIndex = 0;
+			setVideo(selectedVideoArr[l].div,selectedVideoArr[l].mediaArr[selectedVideoArr[l].videoIndex].path,selectedVideoArr[l].w,selectedVideoArr[l].h)
+		}
+	}
+	
+	
+	
+}
+
+function startMedia()
+{
+	selectedVideoArr = [];
+	selectedImageArr = [];
+	for(var i=0;i<xmlArr.length;i++)
+	{
+		
+		if(xmlArr[i].mediaArr[0].type == "Image")
+		{
+			setImage('media-container'+xmlArr[i].playlistObj.id,xmlArr[i].mediaArr[0].path,xmlArr[i].frameObj.width,xmlArr[i].frameObj.height)
+			selectedImageArr.push({index:i,div:'media-container'+xmlArr[i].playlistObj.id,imageIndex:0,totalImage:xmlArr[i].mediaArr.length})
+		}
+		else if(xmlArr[i].mediaArr[0].type == "Video")
+		{
+		
+			currentVideoDiv = 'media-container'+xmlArr[i].playlistObj.id
+			setVideo(currentVideoDiv,xmlArr[i].mediaArr[selectedVideo].path,xmlArr[i].frameObj.width,xmlArr[i].frameObj.height);
+			
+			//0alert(xmlArr[i].mediaArr[selectedVideo].start+":"+xmlArr[i].mediaArr[selectedVideo].end)
+			selectedVideoArr.push({index:i,div:currentVideoDiv,videoIndex:selectedVideo,totalVideo:xmlArr[i].mediaArr.length,w:xmlArr[i].frameObj.width,h:xmlArr[i].frameObj.height,mediaArr:xmlArr[i].mediaArr,video:$('#'+currentVideoDiv+" video")[0],start:xmlArr[i].mediaArr[selectedVideo].start,end:xmlArr[i].mediaArr[selectedVideo].end,isResized:fit})
+		}
+		
+	}
+}
+function updateProgress()
+{
+//return;
+	//msg(timeToSec(selectedVideoArr[0].start) +":"+ Math.round(selectedVideoArr[0].video.currentTime))
+	for(var i=0;i<selectedVideoArr.length;i++)
+	{
+		var startTime = timeToSec(selectedVideoArr[i].start);
+		var endTime = timeToSec(selectedVideoArr[i].end);
+		if(endTime < 1)
+		{
+			endTime = selectedVideoArr[i].video.duration;
+		}
+		/// resize video
+		//msg(selectedVideoArr[i].isResized)
+		if(!selectedVideoArr[i].isResized)
+		{
+		
+			var _video = selectedVideoArr[i].video;
+			
+			actualRatio = _video.videoWidth/_video.videoHeight
+   			targetRatio = $(_video).width()/$(_video).height()
+   			adjustmentRatio = //targetRatio/actualRatio
+   			$(_video).css({"-webkit-transform":"scaleX(1)","-webkit-transform":"scaleY("+actualRatio+")"})
+			selectedVideoArr[i].isResized = true;
+			//alert(_video.videoWidth+":"+_video.videoHeight+":---:"+$(_video).width()+":"+$(_video).height())
+			
+		}
+		
+		
+		if(selectedVideoArr[i].video.currentTime < startTime)
+		{
+			selectedVideoArr[i].video.currentTime = startTime;
+			//msg("seek:"+startTime)
+		}
+		else if(selectedVideoArr[i].video.currentTime > endTime || selectedVideoArr[i].video.currentTime >= selectedVideoArr[i].video.duration)
+		{
+			//selectedVideoArr[i].video.currentTime = timeToSec(selectedVideoArr[i].start)
+			//msg("Video Complete:"+selectedVideoArr[i].totalVideo+":"+(selectedVideoArr[i].videoIndex+1))
+			if(selectedVideoArr[i].totalVideo > (selectedVideoArr[i].videoIndex+1))
+			{
+				$('#'+selectedVideoArr[i].div).html('');
+				selectedVideo = selectedVideoArr[i].videoIndex = selectedVideoArr[i].videoIndex+1;
+				setVideo(selectedVideoArr[i].div,selectedVideoArr[i].mediaArr[selectedVideoArr[i].videoIndex].path,selectedVideoArr[i].w,selectedVideoArr[i].h)
+				selectedVideoArr[i].video.currentTime = 0;
+				//msg("Next Video"+selectedVideoArr[i].video.currentTime+":"+endTime)
+			}
+			else
+			{
+				if(selectedVideoArr[i].mediaArr.length == 1)
+				{
+					selectedVideoArr[i].video.currentTime = 0;
+					selectedVideoArr[i].video.play();
+				}
+				else
+				{
+					$('#'+selectedVideoArr[i].div).html('');
+					selectedVideo = selectedVideoArr[i].videoIndex = 0;
+					setVideo(selectedVideoArr[i].div,selectedVideoArr[i].mediaArr[selectedVideoArr[i].videoIndex].path,selectedVideoArr[i].w,selectedVideoArr[i].h)
+					selectedVideoArr[i].video.currentTime = 0;
+					//msg("First Video "+selectedVideoArr[i].div+":"+selectedVideoArr[i].mediaArr[selectedVideoArr[i].videoIndex].path+":"+selectedVideoArr[i].mediaArr.length)
+				}
+			}
+		}
+	}
+	return;
+	 //msg(selectedVideoArr[0].start)
+	
+	
+	if(!isPlaying)
+	{
+		if(xmlArr[selectedNum].mediaArr[0].type == "Image")
+		{
+			
+			//$('#'+xmlArr[selectedNum].frameObj.name
+			//$('#media-container'+xmlArr[selectedNum].playlistObj.id)
+			
+			imageDuration = xmlArr[selectedNum].mediaArr[0].duration;
+		}
+		else if(xmlArr[selectedNum].mediaArr[0].type == "Video")
+		{
+			//alert(xmlArr[selectedNum].frameObj.name)
+			//setVideo(parent,src,w,h)
+		}
+		selectedNum++;
+		for(var i=selectedNum;i<xmlArr.length;i++)
+		{
+			//alert(xmlArr[i].mediaArr[0].name)
+		}
+		isPlaying = true;
+	}
+}
+/// ADD VIDEO COMPONENET ////
+  function addVideo(src,w,h)
+	{
+	
+		var strategy = initStrategy();
+		var configobj = {
+			"controls": {
+				'src_img':'images/pixel.png'
+			},
+			"strategy":{
+				"order":strategy
+			}
+		};
+		ovp.init(configobj);
+	
+		var videoconf = {
+		"sources":[{'src':src, 'type':'video/mp4'}],
+		'posterimg':"",
+		'autobuffer':true,
+		'controls':false,
+		'height':h,
+		'width':w,
+		'id':'ovplayer'
+		};
+		
+		return ovp.render('vplayer', videoconf);
+	}
+	
+		//  IMPLEMENTATION OF OVP for HTML5 video
+
+	function initStrategy()
+	{
+		// Get the strategy out of our cookies
+		var strategy = [];
+		strategy.push(getCookie('ovp_strategy0','HTML5'));
+		getCurrentStrategy(strategy);
+		return strategy;
+	}
+	function setCookie(name, val)
+	{
+		document.cookie=name+"="+escape(val)+";expires=Sat, 31 Dec 2019 23:59:59 GMT;";
+	}
+
+	function getCookie(check_name, return_if_not_found)
+	{
+		var a_all_cookies = document.cookie.split( ';' );
+		var a_temp_cookie = '';
+		var cookie_name = '';
+		var cookie_value = '';
+		for ( i = 0; i < a_all_cookies.length; i++ )
+		{
+			a_temp_cookie = a_all_cookies[i].split( '=' );
+			cookie_name = a_temp_cookie[0].replace(/^\s+|\s+$/g, '');
+			if ( cookie_name == check_name )
+			{
+				if ( a_temp_cookie.length > 1 )
+				{
+					cookie_value = unescape( a_temp_cookie[1].replace(/^\s+|\s+$/g, '') );
+				}
+				return cookie_value;
+			}
+			a_temp_cookie = null;
+			cookie_name = '';
+		}
+		return return_if_not_found;
+	}
+    
+	function changeStrategy(o)
+	{
+		for (var i=0;i<o.length;i++)
+		{
+			setCookie('ovp_strategy'+i,o[i]);
+		}
+		window.location.reload();
+	}
+	function getCurrentStrategy(o)
+	{
+	return;
+	}
+	/////////// VIDEO COMPONENT --  END
+///utility tools
+function createDiv(parent,data)
+{
+	$("#"+parent).append(data);
+}
+function timeFormat($seconds) {
+    if ($seconds < 0) {
+        $seconds = 0;
+    }
+    //$seconds = Math.ceil($seconds);
+	$seconds = Math.round($seconds);
+    var result = '';
+    var hr = 0;
+    var min = 0;
+    var sec = 0;
+    hr = parseInt($seconds / 3600) % 24;
+    min = parseInt($seconds / 60) % 60;
+    sec = $seconds % 60;
+    result += hr < 10 ? ('0' + hr + ':') : hr + ':';
+    result += min < 10 ? ('0' + min + ':') : min + ':';
+    result += sec < 10 ? ('0' + sec) : sec;
+    return result;
+}
+function timeToSec($time)
+{
+
+	if($time == "" || $time == null || $time == "undefined")
+	{
+		return 0;
+	}
+	
+	var arr = $time.split(":");
+	
+	if(arr.length == 3)
+	{
+		var sec = Number(arr[0]) * 3600;
+		sec += Number(arr[1]) * 60;
+		sec += Number(arr[2]);
+		
+		return sec;
+	}
+	else
+	{
+		return 0;
+	}
+}
+function msg(str)
+{
+	$('#m').append("\n"+str);	
+}
+</script>
+</head>
+
+<body>
+<div id="main" style="position:relative; border-width:thick; border-style:double;border-color:#0000FF;width:0px;height:0px">
+
+</div>
+<!--<div id="m"></div>-->
+</body>
+</html>

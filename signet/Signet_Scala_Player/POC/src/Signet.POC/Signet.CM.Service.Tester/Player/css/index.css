@@ -1,0 +1,38 @@
+body{background:transparent url(ovp_bgc.gif) repeat scroll 0 0;width:100%;margin:0 auto;font-family:Arial, Helvetica, sans-serif;font-size:12px;}
+a{text-decoration:none;}
+.ovp{width:1004px;}
+.ovp .ovpBld{font-weight:bold;}
+.ovp .ovpHeader{padding:10px 20px;float:left;}
+.ovp .ovpHeader .ovpLogo{background:transparent url(ovp_head.png) no-repeat scroll 0 0;width:270px;height:91px;float:left;}
+.ovp .ovpHeader .ovpMenu{float:left;margin:0;padding:0;list-style-type:none;}
+.ovp .ovpHeader .ovpMenu li{list-type:none;float:left;padding:10px 15px;letter-spacing:5px;}
+.ovp .ovpHeader .ovpMenu li a{color:#4be650;font-size:12px;}
+.ovp .ovpMain{padding:20px 30px 20px 25px;background-color:#ffffff;clear:both;width:946px;float:left;}
+.ovp .ovpMain .ovpHtml5{background:transparent url(ovp_blbg.png) repeat scroll 0 0;float:left}
+.ovp .ovpMain .ovpHtml5 .ovpHtml5C{background:transparent url(ovp_five.png) no-repeat scroll 65px 27px;padding:10px 0 0 115px;height:135px;width:831px;float:left}
+.ovp .ovpMain span{display:block;}
+.ovp .ovpMain .ovpHtml5 .ovpHtml5T{float:left;margin:20px 0 0 100px;}
+.ovp .ovpMain .ovpHtml5 .ovpHtml5C .ovpGreen{letter-spacing:5px;color:#4be650;font-size:20px;text-align:center;}
+.ovp .ovpMain .ovpHtml5 .ovpHtml5C .ovpGold{letter-spacing:5px;color:#4be650;font-size:45px;color:#ffdc66;font-weight:bold}
+.ovp .ovpMain .ovpHtml5 .ovpHtml5O{float:right;background-color:#58c5c7;width:350px;text-align:left;font-size:16px;color:#ffffff;padding:10px 20px 10px 20px;position:relative;top:-50px;left:46px;line-height:19px;font-family:Georgia, "Times New Roman", Times, serif}
+.ovp .ovpMain .ovpHtml5 .ovpHtml5O .ovpAttach{background:transparent url(ovp_attach.png) no-repeat scroll 0 0;height:35px;width:17px;float:right;left:21px;position:relative;top:45px;}
+
+.ovp .ovpMain .ovpMainContent .leftPane{float:left;padding:0px 20px 0 0;border-right:1px solid #58c5c7;margin-top:20px;font-family:Georgia, "Times New Roman", Times, serif}
+.ovp .ovpMain .ovpMainContent .rightPane{float:left;padding:0px 0px 0 20px;margin-top:20px;font-family:Georgia, "Times New Roman", Times, serif;color:#999999;}
+.ovp .ovpMain .ovpMainContent .oTitle{color:#58c5c7;font-size:16px;font-weight:bold;}
+.ovp .ovpMain .ovpMainContent #player-choice{color:#58c5c7;font-size:10px;}
+.ovp .ovpMain .ovpMainContent #player-choice a {color:#58c5c7;font-size:10px;}
+/*.ovp .ovpMain .ovpMainContent .leftPane #ovpPlayer{padding:10px 0 20px 0;}*/
+.ovp .ovpMain .ovpMainContent .leftPane #vplayer{padding:0 0 0 0;}
+.ovp .ovpMain .ovpMainContent .leftPane .ovpGrad{padding:3px 10px 3px 0px;background:transparent url(ovp_grad.png) repeat scroll right 1px;float:left;margin-left:-40px;}
+.ovp .ovpMain .ovpMainContent{float:left;}
+.ovp .ovpMain .ovpMainContent .leftPane .ovpDld{padding:10px 20px 10px 40px;background:#58c5c7;}
+.ovp .ovpMain .ovpMainContent .leftPane .ovpDld a{background:transparent url(ovp_dld.png) no-repeat scroll 0 0;height:34px;width:157px;display:block;}
+.ovp .ovpMain .ovpMainContent .leftPane .ovpAttachi{background:transparent url(ovp_attachi.png) no-repeat scroll 0 0;height:35px;width:17px;float:left;left:-42px;position:relative;top:-45px;}
+/*.ovp .ovpMain .ovpMainContent .rightPane .rLeft{clear:both;float:left;width:210px;padding-top:5px;font-size:11px;padding-right:10px;}*/
+.ovp .ovpMain .ovpMainContent .rightPane .rLeft{clear:both;float:left;width:445px;padding-top:5px;font-size:11px;padding-right:10px;}
+.ovp .ovpMain .ovpMainContent .rightPane ul{margin-top:0px;}
+.ovp .ovpMain .ovpMainContent .rightPane ul li{color:#58c5c7}
+.ovp .ovpMain .ovpMainContent .rightPane ul li span{color:#999999}
+.ovp .ovpMain .ovpMainContent .rightPane .rRight{float:right;padding-top:5px;width:220px;font-size:11px;}
+.ovp .ovpFooter{font-size:10px;color:#828282;clear:both;text-align:center;padding:10px;}
